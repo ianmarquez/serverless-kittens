@@ -27,3 +27,9 @@ serverless deploy --stage ${ENV}
 ```
 serverless invoke -f ${FUNCTION_NAME} --stage ${ENV}
 ```
+
+## Testing Serverless Project Locally
+1. run the command or press F5
+```
+npm run debug
+```

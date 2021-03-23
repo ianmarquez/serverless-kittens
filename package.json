@@ -4,9 +4,12 @@
   "description": "This example demonstrates how create a REST API for AWS Lambdas.",
   "author": "",
   "license": "MIT",
+  "scripts": {
+    "debug": "export SLS_DEBUG=* && nodemon --inspect ./node_modules/.bin/serverless offline --stage dev -e js,yml"
+  },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
-    "aws-sdk": "^2.868.0",
+    "aws-sdk": "^2.869.0",
     "babel-runtime": "^6.26.0",
     "serverless": "^2.30.3",
     "serverless-offline": "^6.8.0",
@@ -25,6 +28,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-3": "^6.24.1",
+    "serverless-local-dev-server": "^0.3.1",
     "webpack": "^4.28.3",
     "webpack-node-externals": "^1.7.2"
   }

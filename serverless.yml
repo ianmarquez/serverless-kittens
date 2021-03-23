@@ -22,15 +22,16 @@ frameworkVersion: '2'
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs12.x
   lambdaHashingVersion: 20201221
+  region: us-east-1
 # you can define service wide environment variables here
   environment:
     DYNAMODB_KITTEN_TABLE: ${opt:stage}-kittens-${self:service}
 
 # you can overwrite defaults here
 #  stage: dev
-#  region: us-east-1
+#  
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -76,16 +77,16 @@ functions:
           path: /v1/kitten/{name}
           method: get
   update: 
-    handler: handler.update/{name}
+    handler: handler.update
     events:
       - http:
-          path: /v1/kitten
+          path: /v1/kitten/{name}
           method: post
   delete:
-    handler: handler.delete/{name}
+    handler: handler.delete
     events:
       - http:
-          path: /v1/kitten
+          path: /v1/kitten/{name}
           method: delete
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

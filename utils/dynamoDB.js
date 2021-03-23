@@ -1,9 +1,10 @@
 const { DynamoDB } = require('aws-sdk');
 
-const dynamoDB = new DynamoDB.DocumentClient();
+const client = new DynamoDB({ region: process.env.AWS_REGION });
 
 module.exports = {
-  transact: async (method, params) => {
-    return dynamoDB[method](params).promise();
+  transact: (method, params) => {
+    console.log(params);
+    return client[method](params).promise();
   }
 }

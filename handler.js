@@ -1,6 +1,6 @@
 'use strict';
 const { transact } = require('./utils/dynamoDB');
-const { handleError } = require('./utils/errorHandler');
+const { handleError, removeDynamoDBType } = require('./utils/utils');
 
 module.exports.create = async (event) => {
   
@@ -17,11 +17,14 @@ module.exports.create = async (event) => {
 
   let putParams = {
     TableName: process.env.DYNAMODB_KITTEN_TABLE,
-    Item: { name, age }
+    Item: {
+      "name": { S: name },
+      "age": { S: isNaN(age) ? age : age.toString() }
+    }
   }
 
   try {
-    await transact('put', putParams);
+    await transact('putItem', putParams);
   } catch (dynamoDBError) {
     return handleError(dynamoDBError, 500, 'There was an error accessing DynamoDB');
   }
@@ -33,12 +36,13 @@ module.exports.create = async (event) => {
 
 module.exports.list = async () => {
   let scanParams = {
-    TableName: process.env.DYNAMODB_KITTEN_TABLE
+    TableName: process.env.DYNAMODB_KITTEN_TABLE,
+    AttributesToGet: ['name', 'age'],
   }
 
   let scanResult = {};
   try {
-    scanResult = transact('scan', scanParams);
+    scanResult = await transact('scan', scanParams);
   } catch (scanError) {
     return handleError(scanError, 500, 'There was an error accessing DynamoDB');
   }
@@ -49,7 +53,7 @@ module.exports.list = async () => {
 
   return {
     statusCode: 200,
-    body: JSON.stringify(scanResult.items.map(({name, age}) => ({ name, age })))
+    body: JSON.stringify(removeDynamoDBType(scanResult.Items))
   }
 }
 
@@ -57,13 +61,15 @@ module.exports.get = async (event) => {
   let getParams = {
     TableName: process.env.DYNAMODB_KITTEN_TABLE,
     Key: {
-      name: event.pathParameters.name
+      "name": {
+        S: event.pathParameters.name
+      }
     }
   }
 
   let getResult = {};
   try {
-    getResult = await transact('get', getParams);
+    getResult = await transact('getItem', getParams);
   } catch (getError) {
     return handleError(getError, 500, 'There was an error accessing DynamoDB');
   }
@@ -71,11 +77,9 @@ module.exports.get = async (event) => {
   if (!getResult.Item) 
     return handleError(null, 404, `No Kitten with the name: ${event.pathParameters.name} Found in Database`);
 
-  const { name, age } = getResult.Item;
-
   return {
     statusCode:200,
-    body: JSON.stringify({ name, age }),
+    body: JSON.stringify(removeDynamoDBType(getResult.Item)),
   }
 }
 
@@ -86,24 +90,25 @@ module.exports.update = async (event) => {
   } catch (jsonError) {
     return handleError(jsonError, 400, 'There was an error parsing the request body.');
   }
-  const { age, name } = bodyObj;
+  const name = event.pathParameters.name;
+  const { age } = bodyObj;
   if(typeof age === 'undefined') {
     return handleError(null, 404, 'Incorrect parameters');
   }
 
   let updateParams = {
     TableName: process.env.DYNAMODB_KITTEN_TABLE,
-    Key: { name },
+    Key: { "name": { S: name } },
     UpdateExpression: 'set #age = :age',
-    ExpressionAttributeName: {
+    ExpressionAttributeNames: {
       '#age': 'age'
     },
     ExpressionAttributeValues: {
-      ':age': age
+      ':age': { S: isNaN(age) ? age : age.toString() }
     }
   }
   try {
-    await transact('update', updateParams);
+    await transact('updateItem', updateParams);
   } catch (dynamoDBError) {
     return handleError(dynamoDBError, 500, 'There was an error updating');
   }
@@ -113,15 +118,15 @@ module.exports.update = async (event) => {
   }
 }
 
-module.exports.del = async (event) => {
+module.exports.delete = async (event) => {
   let deleteParams = {
     TableName: process.env.DYNAMODB_KITTEN_TABLE,
     Key: {
-      name: event.pathParameters.name
+      name: { S: event.pathParameters.name }
     }
   }
   try {
-    await transact('delete', deleteParams);
+    await transact('deleteItem', deleteParams);
   } catch (deleteError) {
     return handleError(deleteError, 500, 'There was an error deleting');
   }

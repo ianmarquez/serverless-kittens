@@ -25,6 +25,8 @@ provider:
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
   region: us-east-1
+  memorySize: 128 # optional, in MB, default is 1024
+  timeout: 10 # optional, in seconds, default is 6
 # you can define service wide environment variables here
   environment:
     DYNAMODB_KITTEN_TABLE: ${opt:stage}-kittens-${self:service}

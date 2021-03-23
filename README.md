@@ -12,11 +12,11 @@ In order to deploy the function, you will need the following:
 
 ## Deploying Serverless Project
 
-1. Clone the repository and install dependencies:\
+1. Clone the repository and install dependencies:
 ```
 npm install
 ```
-2. Deploy serverless using the command:\
+2. Deploy serverless using the command:
 ```
 serverless deploy --stage ${ENV}
 ```

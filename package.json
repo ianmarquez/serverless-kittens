@@ -5,7 +5,9 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "debug": "export SLS_DEBUG=* && nodemon --inspect ./node_modules/.bin/serverless offline --stage dev -e js,yml"
+    "debug": "export SLS_DEBUG=* && nodemon --inspect ./node_modules/.bin/serverless offline --stage dev -e js,yml",
+    "dev": "serverless deploy --stage dev",
+    "prd": "serverless deploy --stage prd"
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",

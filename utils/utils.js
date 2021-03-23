@@ -11,18 +11,26 @@ module.exports = {
     const removeDBType = (item) => {
       for (const entry of Object.entries(item)) {
         for (const value of Object.values(entry[1]))
-        res[entry[0]] = value;
+        return {[entry[0]]: value};
       }
     }
-    const res = {};
+
     if (Array.isArray(obj)) {
-      for (const item of Object.values(obj)) {
-        removeDBType(item)
+      let result = []
+      for (const entries of Object.values(obj)) {
+        let parsedVal = {};
+        for (const key in entries) {
+          parsedVal = {...parsedVal, ...removeDBType({[key]: entries[key]})}
+        }
+        result.push(parsedVal);
       }
+      return result;
     } else {
-      removeDBType(obj)
+      let result= {};
+      for (const key in obj) {
+        result = {...result, ...removeDBType({[key]:obj[key]})}  
+      }
+      return result;
     }
-    
-    return res;
   }
 }
